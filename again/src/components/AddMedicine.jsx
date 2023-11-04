@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
+import axios from "axios";
 import { useStateContext } from "../context";
 const AddMedicine = () => {
   const { addMedicine, connect, address } = useStateContext();
@@ -10,7 +11,7 @@ const AddMedicine = () => {
   }
   const [formData, setFormData] = useState({
     MedicineName: "",
-    NationalDrugCode: 0,
+    StripID: 0,
     Conditions: "",
     Quantity: "",
     Status: "Ideal/Trustworthy",
@@ -38,12 +39,51 @@ const AddMedicine = () => {
     }
   };
 
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   await addMedicine({
+  //     ...formData,
+  //   });
+
+  //   console.log(formData);
+  // };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     await addMedicine({
       ...formData,
     });
-    console.log(formData);
+
+    try {
+      await axios
+        .post("http://localhost:5000/addMedicine", {
+          MedicineName: formData.MedicineName,
+          StripID: formData.StripID,
+          Conditions: formData.Conditions,
+          Quantity: formData.Quantity,
+          Status: formData.Status,
+          Ingredients: formData.Ingredients,
+          SideEffects: formData.SideEffects,
+          ExpiryDate: formData.ExpiryDate,
+          ManufactureDate: formData.ManufactureDate,
+          BatchNumber: formData.BatchNumber,
+          Price: formData.Price,
+          address: address,
+        })
+        .then((res) => {
+          if (res.data == "exists") {
+            alert("Medicine Already Exists");
+          } else if (res.data == "added") {
+            alert("Medicine Added Successfully");
+          }
+        })
+        .catch((e) => {
+          alert("some error", e);
+          console.log(e);
+        });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -68,6 +108,7 @@ const AddMedicine = () => {
                         id="floatingName"
                         placeholder="Medicine Name"
                         name="MedicineName"
+                        required
                         value={formData.MedicineName}
                         onChange={handleInputChange}
                       />
@@ -81,8 +122,9 @@ const AddMedicine = () => {
                         className="form-control"
                         id="floatingDrugCode"
                         placeholder="National Drug Code"
-                        name="NationalDrugCode"
-                        value={formData.NationalDrugCode}
+                        name="StripID"
+                        required
+                        value={formData.StripID}
                         onChange={handleInputChange}
                       />
                       <label htmlFor="floatingDrugCode">
@@ -99,6 +141,7 @@ const AddMedicine = () => {
                         id="floatingconditions"
                         placeholder="Conditions"
                         name="Conditions"
+                        required
                         value={formData.Conditions}
                         onChange={handleInputChange}
                       />
@@ -113,6 +156,7 @@ const AddMedicine = () => {
                         placeholder="Ingredients"
                         id="floatingIngredients"
                         name="Ingredients"
+                        required
                         value={formData.Ingredients}
                         onChange={handleInputChange}
                       ></textarea>
@@ -127,6 +171,7 @@ const AddMedicine = () => {
                         id="floatingBatchNumber"
                         placeholder="Batch Number"
                         name="BatchNumber"
+                        required
                         value={formData.BatchNumber}
                         onChange={handleInputChange}
                       />
@@ -142,6 +187,7 @@ const AddMedicine = () => {
                           id="floatingQuantity"
                           placeholder="Quantity"
                           name="Quantity"
+                          required
                           value={formData.Quantity}
                           onChange={handleInputChange}
                         />
@@ -158,6 +204,7 @@ const AddMedicine = () => {
                         id="floatingPrice"
                         placeholder="Price"
                         name="Price"
+                        required
                         value={formData.Price}
                         onChange={handleInputChange}
                       />
@@ -173,6 +220,7 @@ const AddMedicine = () => {
                         id="floatingMdate"
                         placeholder="Manufacturing date"
                         name="ManufactureDate"
+                        required
                         value={formData.ManufactureDate}
                         onChange={handleInputChange}
                       />
@@ -187,6 +235,7 @@ const AddMedicine = () => {
                         id="floatingEdate"
                         placeholder="Expiry date"
                         name="ExpiryDate"
+                        required
                         value={formData.ExpiryDate}
                         onChange={handleInputChange}
                       />
@@ -200,6 +249,7 @@ const AddMedicine = () => {
                         placeholder="Address"
                         id="floatingSideEffects"
                         name="SideEffects"
+                        required
                         value={formData.SideEffects}
                         onChange={handleInputChange}
                       ></textarea>
@@ -208,10 +258,14 @@ const AddMedicine = () => {
                   </div>
 
                   <div className="text-center">
-                    <button type="submit" className="btn btn-primary">
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ margin: "20px" }}
+                    >
                       Submit
                     </button>
-                    <button type="reset" className="btn btn-secondary">
+                    <button type="reset" className="btn btn-warning">
                       Reset
                     </button>
                   </div>
